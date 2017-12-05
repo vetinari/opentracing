@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"net"
 	"strconv"
 	"strings"
 
@@ -22,14 +23,16 @@ func InitTracer(opts []string) (opentracing.Tracer, error) {
 			useThrift = true
 		}
 		if strings.HasPrefix(o, "collector=") {
-			var hostPort []string
-			hostPort = strings.Split(o[10:], ":")
-			port, err := strconv.ParseInt(hostPort[1], 10, 64)
+			host, portStr, err := net.SplitHostPort(o[10:])
 			if err != nil {
-				return nil, fmt.Errorf("failed to parse %s as int: %s", hostPort[1], err)
+				return nil, fmt.Errorf("failed to split host/port: %s", err)
+			}
+			port, err := strconv.ParseInt(portStr, 10, 64)
+			if err != nil {
+				return nil, fmt.Errorf("failed to parse %s as int: %s", portStr, err)
 			}
 			collector = lightstep.Endpoint{
-				Host: hostPort[0],
+				Host: host,
 				Port: int(port),
 			}
 		}

@@ -12,6 +12,7 @@ plugins: deps $(PLUGINS) checks
 
 deps:
 	go get -t github.com/opentracing/opentracing-go
+	go get -t github.com/lightstep/lightstep-tracer-go
 	glide update
 	glide install
 
